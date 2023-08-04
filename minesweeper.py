@@ -208,86 +208,17 @@ class MinesweeperAI():
             sentence.mark_safe(cell)
 
         # [3] Add a new sentence to the AI's knowledge base
-        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
-        cellfield = set()
-        for cellf in attempt_cellfield:
-            if not(cellf[0] < 0 or cellf[0] > 7) and not(cellf[1] < 0 or cellf[1] > 7):
-                #print("CORNER")
-                cellfield.add(cellf)
+        cellfield = self.surrounding_cells(cell)
 
         sentence = Sentence(cells=cellfield, count=countc)
         self.knowledge.append(sentence)
 
         # [4] Mark any additional cells as safe or as mines
-        safe_cells = set()
-        mine_cells = set()
-       
-        #print("safe:")
-        #print(self.safes)
-
-        # Set and Subset Division
+        old_knowledge = self.knowledge
         while True:
-            print("safes:")
-            print(self.safes - self.moves_made)
-            # Mark mines
-            if count == len(cellfield):
-                mine_cells = cellfield
-        
-            for mine in mine_cells:
-                self.mark_mine(mine)
-            #print("mine:")
-            #print(self.mines)
+            #Check knowledge function loops over all sentences to see if any new sentences can be infered.
             self.check_knowledge()
-
-            # Mark safes
-            surroundingmines_c = 0
-            surroundingmines = set()
-            for surroundingmine in cellfield:
-                if surroundingmine in self.mines:
-                    surroundingmines_c += 1
-                    surroundingmines.add(surroundingmine)
-            #print("mines:")
-            #print(surroundingmines)
-            if count == surroundingmines_c:
-                #print("reached condition")
-                safe_cells = cellfield
-                cellfield_c = cellfield.copy()
-                for cellf in cellfield_c:
-                    if cellf in surroundingmines:
-                        safe_cells.remove(cellf)
-            if count == 0:
-                for cell_l in cellfield:
-                    self.mark_safe(cell_l)
-            for safe_cell in safe_cells:
-                self.mark_safe(safe_cell)
-
-            old_knowledge = self.knowledge.copy()
-            self.check_knowledge()
-
-            for i in range(len(self.knowledge)):
-                for j in range(len(self.knowledge) - 1):
-                    j += 1
-                    set1 = self.knowledge[i]
-                    set2 = self.knowledge[j]
-                    if (set1.cells != set2.cells) and (set1.cells != set()) and (set2.cells != set()):
-                        if (set1.cells).issubset(set2.cells):
-                            print("found subset")
-                            print(str(set1.cells) +" issubset " + str(set2.cells))
-                            newset = (set2.cells).difference(set1.cells)
-                            newcount = set2.count - set1.count
-                            newsentence = Sentence(cells=newset, count=newcount)
-                            if (newsentence != set1) and (newsentence != set2) and (newsentence not in self.knowledge):
-                                self.knowledge.append(newsentence)      
-                        elif (set2.cells).issubset(set1.cells):
-                            #print("found subset")
-                            #print(str(set2.cells) + "issubset" + str(set1.cells))
-                            newset = (set1.cells).difference(set2.cells)
-                            newcount = set1.count - set2.count
-                            newsentence = Sentence(cells=newset, count=newcount)
-                            if (newsentence != set1) and (newsentence != set2) and (newsentence not in self.knowledge):
-                                self.knowledge.append(newsentence)  
-            self.check_knowledge() 
-            if old_knowledge == self.knowledge:
+            if self.knowledge == old_knowledge:
                 break
 
         # Return status
@@ -297,21 +228,85 @@ class MinesweeperAI():
         #raise NotImplementedError
     
     def check_knowledge(self):
-        for sentence in self.knowledge:
-            if len(sentence.cells) == 1:
+        
+        while True:
+            old_knowledge = self.knowledge
+            print(f"safes: {len(self.safes - self.moves_made)}")
+
+            for i in range(len(self.knowledge)):
+                for j in range(len(self.knowledge) - 1):
+                    j += 1
+                    set1 = self.knowledge[i]
+                    set2 = self.knowledge[j]
+                    if (set1.cells != set2.cells) and (set1.cells != set()) and (set2.cells != set()):
+                        if (set1.cells).issubset(set2.cells):
+                            newset = (set2.cells).difference(set1.cells)
+                            newcount = set2.count - set1.count
+                            newsentence = Sentence(cells=newset, count=newcount)
+                            if (newsentence != set1) and (newsentence != set2) and (newsentence not in self.knowledge):
+                                print("found subset")
+                                print(str(set1.cells) +" issubset " + str(set2.cells))
+                                self.knowledge.append(newsentence) 
+                                print(newsentence)     
+                        elif (set2.cells).issubset(set1.cells):
+                            #print("found subset")
+                            #print(str(set2.cells) + "issubset" + str(set1.cells))
+                            newset = (set1.cells).difference(set2.cells)
+                            newcount = set1.count - set2.count
+                            newsentence = Sentence(cells=newset, count=newcount)
+                            if (newsentence != set1) and (newsentence != set2) and (newsentence not in self.knowledge):
+                                print("found subset")
+                                print(str(set2.cells) +" issubset " + str(set1.cells))
+                                self.knowledge.append(newsentence)
+                                print(newsentence)
+
+            for sentence in self.knowledge:
+                if len(sentence.cells) == 1:
+                    if sentence.count == 0:
+                        #print("safe found using elimination")
+                        self.mark_safe(list(sentence.cells)[0])
+                        #print("case 1")
+                    if sentence.count >= 1:
+                        #print("mine found using elimination")
+                        self.mark_mine(list(sentence.cells)[0])
+                        #print("case 2")
+                if len(sentence.cells) == sentence.count:
+                    for cell in sentence.cells.copy():
+                        self.mark_mine(cell)
+                    #print("reached condition")
+                marked_mines = set()
+                for cell in sentence.cells:
+                    if cell in self.mines:
+                        marked_mines.add(cell)
+                    
+                if len(marked_mines) == sentence.count:
+                    safe_cells = sentence.cells.copy()
+                    cellfield_c = sentence.cells.copy()
+                    for cellf in cellfield_c:
+                        if cellf in self.mines:
+                            safe_cells.remove(cellf)
+                    for safe_cell in safe_cells:
+                        self.mark_safe(safe_cell)
+
                 if sentence.count == 0:
-                    print("safe found using elimination")
-                    self.mark_safe(list(sentence.cells)[0])
-                if sentence.count >= 1:
-                    print("mine found using elimination")
-                    self.mark_mine(list(sentence.cells)[0])
-            elif len(sentence.cells) == sentence.count:
-                for cell in sentence.cells.copy():
-                    self.mark_mine(cell)
-            elif sentence.count == 0:
-                for cell in sentence.cells.copy():
-                    self.mark_safe(cell)
+                    for cell in sentence.cells.copy():
+                       self.mark_safe(cell)
+                       #print("case 4")
+
+                    
+            if old_knowledge == self.knowledge:
+                #print("breaking")
+                break
         return True
+    
+    def surrounding_cells(self, cell):
+        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
+        cellfield = set()
+        for cellf in attempt_cellfield:
+            if not(cellf[0] < 0 or cellf[0] > 7) and not(cellf[1] < 0 or cellf[1] > 7) and (cellf not in self.moves_made):
+                #print("CORNER")
+                cellfield.add(cellf)
+        return cellfield
 
     def make_safe_move(self):
         """
@@ -324,6 +319,7 @@ class MinesweeperAI():
         """
         for safe in self.safes:
             if safe not in self.moves_made:
+                print(safe)
                 return safe
         return None
         #raise NotImplementedError
@@ -337,7 +333,9 @@ class MinesweeperAI():
         """
         available_moves = [(i, j) for i in range(8) for j in range(8) if (i, j) not in self.moves_made and (i, j) not in self.mines]
         if available_moves:
-            return random.choice(available_moves)
+            randomcell = random.choice(available_moves)
+            print(randomcell)
+            return randomcell
         #print("no avaliable moves")
         return None
 
