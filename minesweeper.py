@@ -266,7 +266,7 @@ class MinesweeperAI():
             then those sentences should be added to the knowledge base as well."""
 
             for i in range(len(self.knowledge)):
-                for j in range(len(self.knowledge) - 1):
+                for j in range(len(self.knowledge)- 1):
                     #print(i, j)
                     j += 1
                     set1 = self.knowledge[i]
@@ -279,6 +279,7 @@ class MinesweeperAI():
                             if (newsentence != set1) and (newsentence != set2) and (newsentence not in self.knowledge):
                                 #print("found subset")
                                 #print(str(set1.cells) +" issubset " + str(set2.cells))
+                                print(f"({set2}) <-> ({set1}) = {newsentence}")
                                 self.knowledge.append(newsentence) 
                                 #print(newsentence)     
                         elif (set2.cells).issubset(set1.cells):
@@ -290,6 +291,7 @@ class MinesweeperAI():
                             if (newsentence != set1) and (newsentence != set2) and (newsentence not in self.knowledge):
                                 #print("found subset")
                                 #print(str(set2.cells) +" issubset " + str(set1.cells))
+                                print(f"({set1}) <-> ({set2}) = {newsentence}")
                                 self.knowledge.append(newsentence)
                                 #print(newsentence)
 
@@ -332,7 +334,8 @@ class MinesweeperAI():
         return True
     
     def surrounding_cells(self, cell):
-        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
+        # Took out cell [0]
+        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
         cellfield = set()
         for cellf in attempt_cellfield:
             if not(cellf[0] < 0 or cellf[0] > 7) and not(cellf[1] < 0 or cellf[1] > 7) and (cellf not in self.moves_made):

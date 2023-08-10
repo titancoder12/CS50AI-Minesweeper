@@ -21,9 +21,8 @@ def loop():
     stuck = False
     while iteration <= cap:
         #input()
-        
-        random.seed(iteration)
         iteration += 1
+        random.seed(iteration)
         
         game = minesweeper.Minesweeper(height=HEIGHT, width=WIDTH, mines=MINES)
         ai = minesweeper.MinesweeperAI(height=HEIGHT, width=WIDTH)
@@ -35,6 +34,7 @@ def loop():
             won += 1
         elif game == "lost":
             lost += 1
+            #return
         elif game == "lost in start":
             excludelost +=1
         else:
@@ -51,7 +51,7 @@ def loop():
 def playgame(game, ai, iteration):
     movesn = 0
     while True:
-    
+        movesn += 1
         # print("knowledge:")
         # for sentence in ai.knowledge:
         #     print(f"\t{sentence.cells}: {sentence.count}")
@@ -77,7 +77,6 @@ def playgame(game, ai, iteration):
     
         # Make move and update AI knowledge
         if move:
-            movesn += 1
             cprint.warn("iteration:")
             cprint.warn(iteration)
             for mine in game.mines:
