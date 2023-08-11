@@ -34,6 +34,7 @@ def loop():
             won += 1
         elif game == "lost":
             lost += 1
+            # Comment if you don't want to stop when losing
             #return
         elif game == "lost in start":
             excludelost +=1
@@ -50,6 +51,7 @@ def loop():
     return
 def playgame(game, ai, iteration):
     movesn = 0
+    moves_made = []
     while True:
         movesn += 1
         # print("knowledge:")
@@ -57,8 +59,11 @@ def playgame(game, ai, iteration):
         #     print(f"\t{sentence.cells}: {sentence.count}")
     
         move = ai.make_safe_move()
+        if move != None:
+            moves_made.append(move)
         if move is None:
             move = ai.make_random_move()
+            moves_made.append(move)
             if move is None:
                 if game.mines == ai.mines:
                     print("WON!!!!")
@@ -84,6 +89,9 @@ def playgame(game, ai, iteration):
                     print("LOST!!!!")
                     #lost+=1
                     #return
+                    print(moves_made)
+                    print(game.mines)
+                    #print(game.knowledge)
                     if movesn <= exclude:
                         return "lost in start"
                     return "lost"
