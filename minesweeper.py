@@ -199,7 +199,13 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-
+        #old_knowledge = self.knowledge
+        #while True:
+        #    old_knowledge = self.knowledge
+        #    self.check_knowledge()
+        #    if self.knowledge == old_knowledge:
+        #        break
+        
         # [1] Mark the cell as a move that has been made
         countc = count
         self.moves_made.add(cell)
@@ -293,12 +299,12 @@ class MinesweeperAI():
                         #print(sentence.cells)
                         #print("case 2")
                     
-                elif len(sentence.cells) == sentence.count:
+                if len(sentence.cells) == sentence.count:
                     for cell in sentence.cells.copy():
                         self.mark_mine(cell)
                     #print("reached condition")
     
-                elif sentence.count == 0:
+                if sentence.count == 0:
                     for cell in sentence.cells.copy():
                        self.mark_safe(cell)
                        #print("case 4")
