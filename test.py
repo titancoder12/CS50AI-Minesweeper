@@ -1,4 +1,4 @@
-import minesweeper
+import minesweepertest as minesweeper
 import random
 from cprint import *
 
