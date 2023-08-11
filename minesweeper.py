@@ -108,25 +108,24 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        #mines = self.mines
-        #return mines
-        mines = set()
-        
         if len(self.cells) == self.count:
+            for cell in self.cells.copy():
+                self.mark_mine(cell)
             return self.cells
         return set()
-        #raise NotImplementedError
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
         safes = set()
+
         if self.count == 0:
             for cell in self.cells.copy():
                 safes.add(cell)
+        for cell in safes:
+            self.mark_safe(cell)
         return safes
-        #raise NotImplementedError
 
     def mark_mine(self, cell):
         """
@@ -144,7 +143,6 @@ class Sentence():
         a cell is known to be safe.
         """
         if cell in self.cells:
-            #self.safes.add(cell)
             self.cells.remove(cell)
         return True
     
@@ -218,20 +216,17 @@ class MinesweeperAI():
         cellfield = self.surrounding_cells(cell)
 
         sentence = Sentence(cells=cellfield, count=countc)
-        self.knowledge.append(sentence) 
+        self.knowledge.append(sentence)
+
+        # Check knowledge to see if any cells can be added 
+        self.check_knowledge()
+
+        # Update knowledge base
         for safe in self.safes:
             self.mark_safe(safe)
 
         for mine in self.mines:
             self.mark_mine(mine)
-
-        # Mark any additional cells as safe or as mines
-        old_knowledge = self.knowledge
-        while True:
-            old_knowledge = self.knowledge
-            self.check_knowledge()
-            if self.knowledge == old_knowledge:
-                break
 
         return True
     
@@ -262,12 +257,27 @@ class MinesweeperAI():
                 elif sentence.count == 0:
                     for cell in sentence.cells.copy():
                         self.mark_safe(cell)
-                    
+
+            """safes = set()
+            mines = set()
+
+            for sentence in self.knowledge:
+                safes = safes.union(sentence.known_safes())
+                mines = safes.union(sentence.known_mines())
+
+            if safes:
+                for safe in safes:
+                    self.mark_safe(safe)
+            if mines:
+                for mine in mines:
+                    self.mark_mine(mine)"""
+
+
             # If the old knowledge is the same as the new knowledge, 
             # no more sentences can be infered and we can exit the while loop
             if old_knowledge == self.knowledge:
                 break
-        
+            
         # Print out knowledge for debugging
         print(self.knowledge)
 
