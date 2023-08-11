@@ -109,8 +109,8 @@ class Sentence():
         Returns the set of all cells in self.cells known to be mines.
         """
         if len(self.cells) == self.count:
-            for cell in self.cells.copy():
-                self.mark_mine(cell)
+            #for cell in self.cells.copy():
+            #    self.mark_mine(cell)
             return self.cells
         return set()
 
@@ -123,8 +123,8 @@ class Sentence():
         if self.count == 0:
             for cell in self.cells.copy():
                 safes.add(cell)
-        for cell in safes:
-            self.mark_safe(cell)
+        #for cell in safes:
+        #    self.mark_safe(cell)
         return safes
 
     def mark_mine(self, cell):
@@ -145,7 +145,6 @@ class Sentence():
         if cell in self.cells:
             self.cells.remove(cell)
         return True
-    
 
 class MinesweeperAI():
     """
@@ -228,12 +227,28 @@ class MinesweeperAI():
         for mine in self.mines:
             self.mark_mine(mine)
 
+        self.clean_knowledge()
         return True
     
     def check_knowledge(self):
         # Keep looping until no more inferences can be made
         while True:
             old_knowledge = self.knowledge
+
+            safes = set()
+            mines = set()
+
+            # for sentence in self.knowledge:
+            #    safes = safes.union(sentence.known_safes())
+            #    mines = safes.union(sentence.known_mines())
+            # print("safes :"+str(safes))
+            # print("mines :"+str(mines))
+            # if safes != set():
+            #    for safe in safes:
+            #        self.mark_safe(safe)
+            # if mines != set():
+            #    for mine in mines:
+            #        self.mark_mine(mine)
         
             # Check for subsets using method described in specs
             self.check_subsets()
@@ -243,7 +258,6 @@ class MinesweeperAI():
                 # Mark single cell sentence as either safes or mines
                 if len(sentence.cells) == 1:
                     if sentence.count == 0:
-                        print(list(sentence.cells)[0])
                         self.mark_safe(list(sentence.cells)[0])
                     elif sentence.count >= 1:
                         self.mark_mine(list(sentence.cells)[0])
@@ -258,20 +272,6 @@ class MinesweeperAI():
                     for cell in sentence.cells.copy():
                         self.mark_safe(cell)
 
-            """safes = set()
-            mines = set()
-
-            for sentence in self.knowledge:
-                safes = safes.union(sentence.known_safes())
-                mines = safes.union(sentence.known_mines())
-
-            if safes:
-                for safe in safes:
-                    self.mark_safe(safe)
-            if mines:
-                for mine in mines:
-                    self.mark_mine(mine)"""
-
 
             # If the old knowledge is the same as the new knowledge, 
             # no more sentences can be infered and we can exit the while loop
@@ -279,6 +279,7 @@ class MinesweeperAI():
                 break
             
         # Print out knowledge for debugging
+        self.clean_knowledge()
         print(self.knowledge)
 
         # Return a status of true
@@ -292,6 +293,7 @@ class MinesweeperAI():
 
         # Keep looping until no more inferences can be made
         while True:
+            self.clean_knowledge()
             old_knowledge = self.knowledge 
             for i in range(len(self.knowledge)):
 
@@ -331,6 +333,17 @@ class MinesweeperAI():
             if self.knowledge == old_knowledge:
                 break
         return True
+    
+    def clean_knowledge(self):
+        """
+        Get's rid of repetitive and unecessary sentences in knowledge
+        """
+        knowledge_copy = self.knowledge.copy()
+        for i in range(len(self.knowledge)):
+            sentence = self.knowledge[i]
+            if sentence.cells == set():
+                knowledge_copy.remove(sentence)
+        self.knowledge = knowledge_copy
                 
     
     def surrounding_cells(self, cell):
