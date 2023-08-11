@@ -13,7 +13,6 @@ won = 0
 lost = 0
 iteration = 0
 excludelost = 0
-moves_made = []
 def loop():
     won = 0
     lost = 0
@@ -30,16 +29,13 @@ def loop():
         
         print(f"iteration: {iteration}")
         print(f"Mines: {game.mines}")
-        game_result = playgame(game, ai, iteration)
-        if game_result == "won":
+        game = playgame(game, ai, iteration)
+        if game == "won":
             won += 1
-        elif game_result == "lost":
+        elif game == "lost":
             lost += 1
-            #print(f"iteration: {iteration}")
-            #print(f"moves: {moves_made}")
-            #print(f"mines: {str(game.mines)}")
             #return
-        elif game_result == "lost in start":
+        elif game == "lost in start":
             excludelost +=1
         else:
             return None
@@ -53,7 +49,6 @@ def loop():
     cprint.warn(lost_2)
     return
 def playgame(game, ai, iteration):
-    moves_made = []
     movesn = 0
     while True:
         movesn += 1
@@ -77,7 +72,6 @@ def playgame(game, ai, iteration):
                 print(f"No known safe moves, AI making random move: {move}")
         else:
             print(f"AI making safe move: {move}")
-        moves_made.append(move)
         #time.sleep(0.2)
     
     
@@ -92,8 +86,8 @@ def playgame(game, ai, iteration):
                     #return
                     if movesn <= exclude:
                         return "lost in start"
-                    #print(f"iteration: {iteration}")
-                    #print(f"moves: {moves_made}")
-                    #print(f"mines: {str(game.mines)}")
                     return "lost"
+                #else:
+            nearby = game.nearby_mines(move)
+            ai.add_knowledge(move, nearby)
 loop()

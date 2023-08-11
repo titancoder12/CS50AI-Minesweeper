@@ -235,7 +235,7 @@ class MinesweeperAI():
         #raise NotImplementedError
     
     def check_knowledge(self):
-        
+        old_knowledge = self.knowledge
         while True:
             old_knowledge = self.knowledge
             print(f"safes: {len(self.safes - self.moves_made)}")
@@ -244,7 +244,7 @@ class MinesweeperAI():
             new sentences can be inferred (using the subset method described in the Background), 
             then those sentences should be added to the knowledge base as well."""
 
-            """for i in range(len(self.knowledge)):
+            for i in range(len(self.knowledge)):
                 for j in range(len(self.knowledge) - 1):
                     #print(i, j)
                     j += 1
@@ -270,7 +270,7 @@ class MinesweeperAI():
                                 #print("found subset")
                                 #print(str(set2.cells) +" issubset " + str(set1.cells))
                                 self.knowledge.append(newsentence)
-                                #print(newsentence)"""
+                                #print(newsentence)
 
             for sentence in self.knowledge:
                 if len(sentence.cells) == 1:
@@ -311,7 +311,8 @@ class MinesweeperAI():
         return True
     
     def surrounding_cells(self, cell):
-        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
+        # Took out cell[0] cell[1]
+        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
         cellfield = set()
         for cellf in attempt_cellfield:
             if not(cellf[0] < 0 or cellf[0] > 7) and not(cellf[1] < 0 or cellf[1] > 7) and (cellf not in self.moves_made):
