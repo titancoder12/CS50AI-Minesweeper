@@ -39,8 +39,6 @@ def loop():
             #return
         elif game == "lost in start":
             excludelost +=1
-        else:
-            return
     title = "---------------------------------------------- RESULTS ----------------------------------------------"
     won_str = f"won: {str(won)}"
     lost_1 = f"lost (excluding losses within first {exclude} moves): {str(lost)}"

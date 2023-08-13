@@ -211,7 +211,6 @@ class MinesweeperAI():
         self.mark_safe(cell)
 
         # Add a new sentence to the AI's knowledge base
-        countc = count
 
         # Create a cell field consisting of all 8 cells around a particular cell
         attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
@@ -222,21 +221,13 @@ class MinesweeperAI():
             if not(cellf[0] < 0 or cellf[0] > 7) and not(cellf[1] < 0 or cellf[1] > 7) and (cellf not in self.moves_made):                       
                 cellfield.add(cellf)
 
-        for cellf in cellfield.copy():
-            if cellf in self.mines:
-                countc - 1
-                cellfield.remove(cellf)
-            if cellf in self.safes:
-                cellfield.remove(cellf)
         cellsentence = Sentence(cells=cellfield, count=countc)
-
         self.knowledge.append(cellsentence)
 
         # Mark any additional cells as safe or mines
         old_knowledge = self.knowledge
         while True:
             old_knowledge = self.knowledge
-
             for sentence in self.knowledge:
                 # Mark single cell sentence as either safes or mines
                 #print("safes and mines:")
@@ -256,6 +247,7 @@ class MinesweeperAI():
                         self.mark_mine(cellc)
 
             # Add any new sentences to the knowledge if any can be infered
+            # Subset method
             for i in range(len(self.knowledge)):
                 for j in range(len(self.knowledge)):
 
@@ -268,7 +260,6 @@ class MinesweeperAI():
                     if set1 == set2:
                         continue
 
-                    
                     # Check if set1 is a subset of set2
                     if (set1.cells).issubset(set2.cells):
                         # Create sentence
@@ -299,7 +290,6 @@ class MinesweeperAI():
                     for cell in mines.copy():
                         self.mines.add(cell)
                         self.mark_mine(cell)   
-            
             if self.knowledge == old_knowledge:
                 break
         
@@ -312,46 +302,22 @@ class MinesweeperAI():
             self.mark_mine(mine)
 
         self.clean_knowledge()
-        print(self.knowledge)
+        #print(self.knowledge)
         return True
     
     def clean_knowledge(self):
         """
         Gets rid of repetitive and unecessary sentences in knowledge
         """
+
         knowledge_copy = self.knowledge.copy()
         for i in range(len(self.knowledge)):
             sentence = self.knowledge[i]
             if sentence.cells == set():
                 knowledge_copy.remove(sentence)
         self.knowledge = knowledge_copy
+        return True
                 
-    
-    def surrounding_cells(self, cell, count):
-        """
-        Returns the 8 adjacent cells around argument cell
-        """
-        countc = count
-
-        # Create a cell field consisting of all 8 cells around a particular cell
-        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
-        cellfield = set()
-
-        # Check if all cells are within the boundries (ie. a cell is on the corner and all 8 cells are not in the cell field)
-        for cellf in attempt_cellfield:
-            if not(cellf[0] < 0 or cellf[0] > 7) and not(cellf[1] < 0 or cellf[1] > 7) and (cellf not in self.moves_made):                       
-                cellfield.add(cellf)
-
-        for cellf in cellfield.copy():
-            if cellf in self.mines:
-                countc - 1
-                cellfield.remove(cellf)
-            if cellf in self.safes:
-                cellfield.remove(cellf)
-        sentence_r = Sentence(cells=cellfield, count=countc)
-
-        # Return the cellfield which discludes the cells outside of board boundries
-        return sentence_r
 
     def make_safe_move(self):
         """
