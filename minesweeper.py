@@ -211,9 +211,25 @@ class MinesweeperAI():
         self.mark_safe(cell)
 
         # Add a new sentence to the AI's knowledge base
-        cellsentence = self.surrounding_cells(cell, countc)
-        print("sentence:")
-        print(cellsentence)
+        countc = count
+
+        # Create a cell field consisting of all 8 cells around a particular cell
+        attempt_cellfield = {(cell[0]-1, cell[1]-1), (cell[0]-1, cell[1]), (cell[0]-1, cell[1]+1), (cell[0], cell[1]-1), (cell[0], cell[1]+1), (cell[0]+1, cell[1]-1), (cell[0]+1, cell[1]), (cell[0]+1, cell[1]+1)}
+        cellfield = set()
+
+        # Check if all cells are within the boundries (ie. a cell is on the corner and all 8 cells are not in the cell field)
+        for cellf in attempt_cellfield:
+            if not(cellf[0] < 0 or cellf[0] > 7) and not(cellf[1] < 0 or cellf[1] > 7) and (cellf not in self.moves_made):                       
+                cellfield.add(cellf)
+
+        for cellf in cellfield.copy():
+            if cellf in self.mines:
+                countc - 1
+                cellfield.remove(cellf)
+            if cellf in self.safes:
+                cellfield.remove(cellf)
+        cellsentence = Sentence(cells=cellfield, count=countc)
+
         self.knowledge.append(cellsentence)
 
         # Mark any additional cells as safe or mines
